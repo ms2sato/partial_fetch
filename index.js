@@ -1,7 +1,7 @@
 /**
  * @typedef {Object} Effect
  * @property {string} action
- * @property {html} string
+ * @property {string} html
  */
 
 /**
@@ -24,7 +24,7 @@
 
 // type ActionNames = keyof typeof actions
   
-{
+const partial = (() => {
   const contentType = 'application/partial+json'
 
   /**
@@ -179,6 +179,8 @@
   partial.form = partialForm
   partial.fileForm = partialFileForm
 
-  window.partial = partial; // TODO: Must be able to change for customize
-}
+  // TODO: Must be able to change for customize
+  return partial
+})();
 
+window.partial = partial
