@@ -23,30 +23,10 @@
 // }
 
 // type ActionNames = keyof typeof actions
-  
+
 const partial = (() => {
   const contentType = 'application/partial+json'
 
-  /**
-   * text to Template Element
-   * @param {string} text 
-   * @returns 
-   */
-  function textToNode(text) {
-    const template = document.createElement("template")
-    template.innerHTML = text
-    return template.content
-  }
-  
-  /**
-   * get URLSearchParams from form
-   * @param {HTMLFormElement} form 
-   * @returns 
-   */
-  function getURLSearchParams(form) {
-    return new URLSearchParams(new FormData(form))
-  }
-  
   /**
    * default actions
    */
@@ -83,7 +63,7 @@ const partial = (() => {
      * @param {HTMLElement} _elm 
      * @param {string} _part 
      */
-     remove: function remove(_elm, _part) {
+    remove: function remove(_elm, _part) {
       throw new Error('NotImplemented')
     },
 
@@ -105,23 +85,14 @@ const partial = (() => {
    */
   async function partial(path, options = {}) {
     const res = await fetch(path, options)
-  
+
     if (res.redirected) {
       window.location.assign(res.url)
       return
     }
-  
-    const resContentType = res.headers.get('Content-Type')
-    if (!resContentType) {
-      throw new Error("Content-Type not found")
-    }
-  
-    if (!resContentType.includes(contentType)) {
-      // nop
-      console.debug(`Content-Type missmatch: ${resContentType}`)
-      return
-    }
-  
+
+    partial.checkContentType(res)
+
     /**
      * @type {Protocol}
      */
@@ -132,12 +103,12 @@ const partial = (() => {
        * @type {Effect}
        */
       const { html, action } = effect
-  
+
       const actionFunc = actions[action]
       if (!action) {
         throw new Error(`"${action}" is not found in partial.actions`)
       }
-  
+
       const element = document.querySelector(selector)
       if (!element) {
         throw new Error(`"${selector}" is not found in document`)
@@ -145,39 +116,68 @@ const partial = (() => {
       actionFunc(element, html)
     }
   }
-  
+
   /**
    * partial for FormElement
    * @param {HTMLFormElement} form
    * @param {RequestInit} [options={}]
    * @returns 
    */
-  async function partialForm(form, options = {}) {
+  partial.form = async function partialForm(form, options = {}) {
     return partial(form.action, {
       method: 'post',
-      body: getURLSearchParams(form),
+      body: new URLSearchParams(new FormData(form)),
       ...options
     })
   }
-  
+
   /**
    * partial for FormElement on FileUploading
    * @param {HTMLFormElement} form 
    * @param {RequestInit} [options={}]
    * @returns 
    */
-  async function partialFileForm(form, options = {}) {
+  partial.fileForm = async function partialFileForm(form, options = {}) {
     return partial(form.action, {
       method: 'post',
       body: new FormData(form),
       ...options
     })
   }
-  
+
+  partial.strictContentTypeChecker = function strictContentTypeChecker(contentType) {
+    return (res) => {
+      const resContentType = res.headers.get('Content-Type')
+      if (!resContentType) {
+        throw new Error("Content-Type not found")
+      }
+
+      if (!resContentType.includes(contentType)) {
+        throw new Error(`Content-Type missmatch: ${resContentType}`)
+      }
+
+      return true
+    }
+  }
+
+  partial.nullContentTypeChecker = function nullContentTypeChecker() {
+    return () => { return true }
+  }
+
+  /**
+   * text to Template Element
+   * @param {string} text 
+   * @returns 
+   */
+  function textToNode(text) {
+    const template = document.createElement("template")
+    template.innerHTML = text
+    return template.content
+  }
+
   partial.actions = actions
+  partial.checkContentType = partial.strictContentTypeChecker(contentType)
   partial.get = partial
-  partial.form = partialForm
-  partial.fileForm = partialFileForm
 
   // TODO: Must be able to change for customize
   return partial

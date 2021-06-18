@@ -3,6 +3,12 @@
   <head>
     <title>pertial fetch sample</title>
     <script src="../index.js"></script>
+    <script>
+      partial.checkContentType = partial.nullContentTypeChecker()
+    </script>
   </head>
-  <body></body>  
+  <body>
+    <h1 id="title">Partial Fetch Sample</h1>
+    <button onClick="partial('./sample1.json')">Change Title</button>
+  </body>  
 </html>

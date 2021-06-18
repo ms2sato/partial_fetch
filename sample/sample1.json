@@ -1,0 +1,8 @@
+{
+  "effects": {
+    "#title": {
+      "action": "replace",
+      "html": "<h1 id=\"title\">Replaced title</h1>"
+    }
+  }
+}
