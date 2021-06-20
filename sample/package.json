@@ -1,0 +1,14 @@
+{
+  "name": "partial-fetch-sample",
+  "version": "0.8.0",
+  "description": "partial fetch sample",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "ms2sato",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}

@@ -1,5 +1,6 @@
 /**
  * @typedef {Object} Effect
+ * @property {string} selector
  * @property {string} action
  * @property {string} html
  */
@@ -98,12 +99,7 @@ const partial = (() => {
      */
     const { effects } = await res.json()
 
-    for (const [selector, effect] of Object.entries(effects)) {
-      /**
-       * @type {Effect}
-       */
-      const { html, action } = effect
-
+    for (const {selector, html, action} of effects) {
       const actionFunc = actions[action]
       if (!action) {
         throw new Error(`"${action}" is not found in partial.actions`)
@@ -123,7 +119,7 @@ const partial = (() => {
    * @param {RequestInit} [options={}]
    * @returns 
    */
-  partial.form = async function partialForm(form, options = {}) {
+  partial.form = async function (form, options = {}) {
     return partial(form.action, {
       method: 'post',
       body: new URLSearchParams(new FormData(form)),
@@ -137,7 +133,7 @@ const partial = (() => {
    * @param {RequestInit} [options={}]
    * @returns 
    */
-  partial.fileForm = async function partialFileForm(form, options = {}) {
+  partial.fileForm = async function (form, options = {}) {
     return partial(form.action, {
       method: 'post',
       body: new FormData(form),
@@ -145,7 +141,7 @@ const partial = (() => {
     })
   }
 
-  partial.strictContentTypeChecker = function strictContentTypeChecker(contentType) {
+  partial.strictContentTypeChecker = function (contentType) {
     return (res) => {
       const resContentType = res.headers.get('Content-Type')
       if (!resContentType) {
@@ -160,7 +156,7 @@ const partial = (() => {
     }
   }
 
-  partial.nullContentTypeChecker = function nullContentTypeChecker() {
+  partial.nullContentTypeChecker = function () {
     return () => { return true }
   }
 
